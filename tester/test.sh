@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [ -z "$GIT_REPO" ]; then
-  echo GIT_REPO unspecified
-        exit 1
-fi
-
 if [ -z "$TEST_CMD" ]; then
   echo TEST_CMD unspecified
         exit 1
