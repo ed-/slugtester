@@ -12,7 +12,11 @@ fi
 
 app_dir=/app
 mkdir -p $app_dir
-git clone $GIT_URL $app_dir
+if [ ! -z "$BRANCH_NAME" ]; then
+  git clone $GIT_URL -b $BRANCH_NAME $app_dir
+else
+  git clone $GIT_URL $app_dir
+fi
 #cat | tar -xC $app_dir
 pushd $app_dir
 $TEST_CMD
