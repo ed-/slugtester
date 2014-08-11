@@ -12,8 +12,28 @@ function add_ssh_creds () {
     chmod 600 $GIT_PRIVATE_KEY_FILE
     ssh-add $GIT_PRIVATE_KEY_FILE ; EXIT_STATUS=$?
     rm -f $GIT_PRIVATE_KEY_FILE
-    if [ $EXIT_STATUS != "0" ] ; then
+    if [ "$EXIT_STATUS" != "0" ] ; then
       echo "Git deploy key register with ssh-agent failed (EXIT_STATUS=$EXIT_STATUS)"
+      exit 1
+    fi
+    # Validate github authentication
+    expect -c '
+      # exp_internal 1
+      # Disable logging to stdout
+      log_user 0
+      set timeout 3
+      spawn ssh -T git@github.com
+      expect {
+        -re "Are you sure you want to continue connecting" {
+          send "yes\r";
+          exp_continue
+        }
+        -re "successfully authenticated" { exit 0 }
+        eof { exit 2 }
+        timeout { exit 3 }
+      }'; EXIT_STATUS=$?
+    if [ "$EXIT_STATUS" != "0" ] ; then
+      echo "FAILED: ssh key validation with github (EXIT_STATUS=$EXIT_STATUS)"
       exit 1
     fi
   fi
