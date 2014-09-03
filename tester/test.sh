@@ -38,17 +38,24 @@ if [ -z "$TEST_CMD" ]; then
   exit 1
 fi
 
-app_dir=/app
-mkdir -p $app_dir
-add_ssh_creds "$GIT_PRIVATE_KEY" "$app_dir"
+APP_DIR=/app
+mkdir -p $APP_DIR
+add_ssh_creds "$GIT_PRIVATE_KEY" "$APP_DIR"
 
 if [ ! -z "$BRANCH_NAME" ]; then
-  git clone $GIT_URL -b $BRANCH_NAME $app_dir
+  git clone $GIT_URL -b $BRANCH_NAME $APP_DIR
 else
-  git clone $GIT_URL $app_dir
+  git clone $GIT_URL $APP_DIR
 fi
 
-remove_ssh_creds "$GIT_PRIVATE_KEY"
-#cat | tar -xC $app_dir
-pushd $app_dir
+
+#cat | tar -xC $APP_DIR
+if [ ! -d "$APP_DIR" ]; then
+  echo Failed to clone $GIT_URL
+  exit 1
+fi
+
+pushd $APP_DIR
 $TEST_CMD
+
+remove_ssh_creds "$GIT_PRIVATE_KEY"
